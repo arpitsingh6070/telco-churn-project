@@ -58,6 +58,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🔮 Telco Customer Churn Predictor")
+st.markdown("[![View on GitHub](https://img.shields.io/badge/GitHub-View_Source_Code-181717?logo=github&style=for-the-badge)](https://github.com/arpitsingh6070/telco-churn-project)")
 st.markdown("Predict whether a customer is likely to churn using our advanced machine learning model.")
 st.markdown("---")
 
