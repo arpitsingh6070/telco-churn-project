@@ -1,9 +1,15 @@
 import streamlit as st
-import requests
+import pandas as pd
+import joblib
+import os
 
-# API URL
-API_URL = "http://localhost:8000/predict" # For local testing
-# In production, we would use the deployed Render API URL, e.g., "https://telco-churn-api.onrender.com/predict"
+# Load Model
+@st.cache_resource
+def load_model():
+    model_path = os.path.join(os.path.dirname(__file__), '..', 'models', 'churn_model.pkl')
+    return joblib.load(model_path)
+
+model = load_model()
 
 st.set_page_config(page_title="Telco Churn Predictor", page_icon="🔮", layout="wide")
 
@@ -99,48 +105,46 @@ st.markdown("---")
 if st.button("Predict Churn Risk"):
     # Build payload
     payload = {
-        "gender": gender,
-        "SeniorCitizen": senior_citizen,
-        "Partner": partner,
-        "Dependents": dependents,
-        "tenure": tenure,
-        "PhoneService": phone,
-        "MultipleLines": multiple_lines,
-        "InternetService": internet,
-        "OnlineSecurity": security,
-        "OnlineBackup": backup,
-        "DeviceProtection": protection,
-        "TechSupport": support,
-        "StreamingTV": tv,
-        "StreamingMovies": movies,
-        "Contract": contract,
-        "PaperlessBilling": paperless,
-        "PaymentMethod": payment,
-        "MonthlyCharges": monthly_charges,
-        "TotalCharges": total_charges
+        "gender": [gender],
+        "SeniorCitizen": [senior_citizen],
+        "Partner": [partner],
+        "Dependents": [dependents],
+        "tenure": [tenure],
+        "PhoneService": [phone],
+        "MultipleLines": [multiple_lines],
+        "InternetService": [internet],
+        "OnlineSecurity": [security],
+        "OnlineBackup": [backup],
+        "DeviceProtection": [protection],
+        "TechSupport": [support],
+        "StreamingTV": [tv],
+        "StreamingMovies": [movies],
+        "Contract": [contract],
+        "PaperlessBilling": [paperless],
+        "PaymentMethod": [payment],
+        "MonthlyCharges": [monthly_charges],
+        "TotalCharges": [total_charges]
     }
     
     with st.spinner("Analyzing customer profile..."):
         try:
-            response = requests.post(API_URL, json=payload)
-            if response.status_code == 200:
-                result = response.json()
-                churn_pred = result.get("churn_prediction")
-                churn_prob = result.get("churn_probability", 0.0)
-                
-                st.subheader("Prediction Results")
-                r_col1, r_col2 = st.columns(2)
-                
-                if churn_pred == "Yes":
-                    r_col1.error(f"⚠️ High Risk: Customer is likely to CHURN")
-                else:
-                    r_col1.success(f"✅ Safe: Customer is likely to STAY")
-                    
-                r_col2.metric("Churn Probability", f"{churn_prob:.1%}")
-                
-                st.progress(float(churn_prob))
-                
+            df = pd.DataFrame(payload)
+            prediction = model.predict(df)[0]
+            churn_prob = model.predict_proba(df)[0][1]
+            
+            churn_pred = "Yes" if prediction == 1 else "No"
+            
+            st.subheader("Prediction Results")
+            r_col1, r_col2 = st.columns(2)
+            
+            if churn_pred == "Yes":
+                r_col1.error(f"⚠️ High Risk: Customer is likely to CHURN")
             else:
-                st.error(f"Error from API: {response.text}")
+                r_col1.success(f"✅ Safe: Customer is likely to STAY")
+                
+            r_col2.metric("Churn Probability", f"{churn_prob:.1%}")
+            
+            st.progress(float(churn_prob))
+                
         except Exception as e:
-            st.error(f"Could not connect to the backend API. Is it running? Details: {e}")
+            st.error(f"Error making prediction: {e}")
