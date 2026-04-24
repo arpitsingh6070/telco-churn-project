@@ -29,7 +29,7 @@ This project was built to be entirely open-source and deployable without ongoing
 - **Data & Modeling:** Pandas, Scikit-learn, XGBoost
 - **Experiment Tracking:** MLflow
 - **Frontend UI:** Streamlit (Custom CSS for a premium, responsive design)
-- **Deployment:** Streamlit Community Cloud (100% Free)
+- **Deployment:** Streamlit Community Cloud.
 
 ## 🚀 Running the Project Locally
 
@@ -54,7 +54,7 @@ If you'd like to run the dashboard on your own machine, follow these steps:
    ```bash
    streamlit run frontend/app.py
    ```
-   The dashboard will be available at `http://localhost:8501`.
+   The dashboard will be available at https://telco-churn-project-arpit.streamlit.app/
 
 ---
 *Built with ❤️ to demonstrate production-grade ML engineering without the production-grade costs.*
